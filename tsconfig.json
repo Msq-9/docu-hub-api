@@ -1,0 +1,26 @@
+{
+    "ts-node": {
+        // https://stackoverflow.com/questions/56650711/cannot-find-module-that-is-defined-in-tsconfig-paths
+        "require": ["tsconfig-paths/register"]
+    },
+    "compilerOptions": {
+        /* Visit https://aka.ms/tsconfig to read more about this file */
+
+        "target": "ES6",
+        "module": "CommonJS" /* Specify what module code is generated. */,
+        "paths": {
+            "@api": ["./server/api/index.ts"],
+            "@auth": ["./server/auth/index.ts"],
+            "@db": ["./server/db/index.ts"],
+            "@db/*": ["./server/db/*"],
+            "@mw": ["./server/middleware/index.ts"]
+        },                                      
+        "sourceMap": true,                      
+        "outDir": "./dist",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true 
+    },
+    "exclude": ["node_modules"]
+}
