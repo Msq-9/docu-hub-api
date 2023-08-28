@@ -15,14 +15,22 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const user = await getUserByEmailQuery(req, req.body.email);
     if (!user) {
-      return res.status(401).send('Email and/or password is incorrect.');
+      return res
+        .status(401)
+        .send({ message: 'Email and/or password is incorrect.' });
     }
 
     if (!compareSync(password, user.passwordHash)) {
-      return res.status(401).send('Email and/or password is incorrect.');
+      return res
+        .status(401)
+        .send({ message: 'Email and/or password is incorrect.' });
     }
 
-    const jwtPayload = { id: user.id, email: user.email };
+    const jwtPayload = {
+      id: user.id,
+      email: user.email,
+      message: 'Authentication successful'
+    };
     const jwtToken = Jwt.sign(
       jwtPayload,
       config.get('jwtSecretKey') as string,
@@ -34,9 +42,9 @@ router.post('/', async (req: Request, res: Response) => {
     return res.send({ ...jwtPayload, token: 'BEARER ' + jwtToken });
   } catch (err) {
     if (err instanceof Error) {
-      return res.status(500).send(err.message);
+      return res.status(500).send({ message: err.message });
     } else {
-      return res.status(500).send('Failed to login user');
+      return res.status(500).send({ message: 'Failed to login user' });
     }
   }
 });

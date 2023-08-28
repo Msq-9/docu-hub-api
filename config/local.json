@@ -10,5 +10,6 @@
     },
     "jwtSecretKey": "eKy6vrWvY9oVkaqQxvLVfq4fHdZ1MoXt",
     "authTokenTTL": "1h",
-    "api_key": "a1b2c33d4e5f6g7h8i9jakblc"
+    "api_key": "a1b2c33d4e5f6g7h8i9jakblc",
+    "allowedOrigins": ["http://localhost:3000"]
 }
