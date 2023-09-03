@@ -1,10 +1,11 @@
 import express, { Express } from 'express';
+import { Server } from 'socket.io';
 import cors from 'cors';
 // Config
 import config from 'config';
 
 // Routes
-import { Users } from '@api';
+import { Users, Documents } from '@routes';
 import { LoginRouter, RegisterRouter } from '@auth';
 
 // Middlewares
@@ -31,6 +32,10 @@ class DocuHubApiService {
     // initilies express body parsers
     this.app.use(express.json());
     this.app.use(express.urlencoded());
+
+    this.app.get('/', function (req, res) {
+      res.sendfile('index.html');
+    });
 
     // setup middlewares
     this.app.use(cors(corsOptions));
@@ -69,13 +74,31 @@ class DocuHubApiService {
 
     // initialise api routes
     this.app.use('/users', Users);
+    this.app.use('/documents', Documents);
   }
 
   start() {
     const port = config.get('port');
 
-    this.app.listen(port, () => {
+    const server = this.app.listen(port, () => {
       console.log(`[server]: Server is running at http://localhost:${port}`);
+    });
+
+    const io = new Server(server);
+
+    io.on('connection', (socket) => {
+      console.log(`${socket.id} connected`);
+
+      socket.on('chat message', (message: string) => {
+        console.log('Received message:', message);
+
+        // Broadcast the message to all clients except the sender
+        socket.broadcast.emit('chat message', message);
+      });
+
+      socket.on('disconnect', () => {
+        console.log(`${socket.id} disconnected`);
+      });
     });
   }
 }

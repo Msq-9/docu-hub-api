@@ -1,1 +1,2 @@
-export { default as Users } from './users';
+export * as usersApi from './users';
+export * as documentsApi from './documents';
