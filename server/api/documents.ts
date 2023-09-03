@@ -19,7 +19,12 @@ export const getRTDocsbyUserId = async (req: Request, res: Response) => {
 
     return res.send(richTextDocumentList);
   } catch (err) {
-    return res.status(500).send(err);
+    if (err instanceof Error) {
+      return res.status(500).send({ message: err.message });
+    }
+    return res
+      .status(500)
+      .send({ message: 'Unable to fetch rich text documents' });
   }
 };
 
@@ -41,14 +46,23 @@ export const createDoc = async (req: Request, res: Response) => {
     updatedBy: user?.id
   };
 
-  await req?.couchbase?.bucket
-    ?.defaultCollection()
-    .insert(
-      `${couchbaseConfig.bucket}::richTextDocument::${docId}`,
-      rtDocumentModel
-    );
+  try {
+    await req?.couchbase?.bucket
+      ?.defaultCollection()
+      .insert(
+        `${couchbaseConfig.bucket}::richTextDocument::${docId}`,
+        rtDocumentModel
+      );
 
-  return res.send(rtDocumentModel);
+    return res.send(rtDocumentModel);
+  } catch (err) {
+    if (err instanceof Error) {
+      return res.status(500).send({ message: err.message });
+    }
+    return res
+      .status(500)
+      .send({ message: 'Unable to create rich text document' });
+  }
 };
 
 export const getDocbyId = async (req: Request, res: Response) => {
