@@ -1,13 +1,11 @@
 import getUserByEmailQuery from '@db/couchbase/Queries/User/getUserByEmail';
 import getByDocId from '@db/couchbase/Queries/getById';
-import express, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import config from 'config';
 import { CbConfig } from '@db/couchbase/connectCouchbase';
 const couchbaseConfig: CbConfig = config.get('couchbase');
 
-const router = express.Router();
-
-router.get('/search', async (req: Request, res: Response) => {
+export const searchUser = async (req: Request, res: Response) => {
   try {
     if (!req.body.email) {
       return res.status(400).send({ message: 'No search parameters we added' });
@@ -28,9 +26,9 @@ router.get('/search', async (req: Request, res: Response) => {
       .status(500)
       .send({ message: 'Failed to find any users with given parameters' });
   }
-});
+};
 
-router.get('/:userId', async (req: Request, res: Response) => {
+export const getUserbyId = async (req: Request, res: Response) => {
   try {
     const userDocId = `${couchbaseConfig.bucket}::user::${req.params.userId}`;
     const userDoc = await getByDocId(req, userDocId);
@@ -39,6 +37,4 @@ router.get('/:userId', async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).send(err);
   }
-});
-
-export default router;
+};

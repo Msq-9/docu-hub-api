@@ -10,6 +10,7 @@
         "module": "CommonJS" /* Specify what module code is generated. */,
         "paths": {
             "@api": ["./server/api/index.ts"],
+            "@routes": ["./server/routes/index.ts"],
             "@auth": ["./server/auth/index.ts"],
             "@db": ["./server/db/index.ts"],
             "@db/*": ["./server/db/*"],

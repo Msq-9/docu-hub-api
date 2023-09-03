@@ -4,7 +4,7 @@ import cors from 'cors';
 import config from 'config';
 
 // Routes
-import { Users } from '@api';
+import { Users, Documents } from '@routes';
 import { LoginRouter, RegisterRouter } from '@auth';
 
 // Middlewares
@@ -69,6 +69,7 @@ class DocuHubApiService {
 
     // initialise api routes
     this.app.use('/users', Users);
+    this.app.use('/documents', Documents);
   }
 
   start() {

@@ -52,6 +52,7 @@
     },
     "_moduleAliases": {
         "@api": "dist/api/index.js",
+        "@routes": "dist/routes/index.js",
         "@auth": "dist/auth/index.js",
         "@db": "dist/db",
         "@db/*": "dist/db/*",

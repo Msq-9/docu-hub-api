@@ -1,8 +1,11 @@
 import { GetResult } from 'couchbase';
 import { Request } from 'express';
-import { User } from '@db/couchbase/Schemas/User';
 
-const getByDocId = async (req: Request, documentId: string): Promise<User> => {
+const getByDocId = async (
+  req: Request,
+  documentId: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<Record<string, any>> => {
   const cbDoc: GetResult | undefined = await req.couchbase?.bucket
     .defaultCollection()
     .get(documentId);
