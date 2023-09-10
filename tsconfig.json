@@ -14,6 +14,7 @@
             "@auth": ["./server/auth/index.ts"],
             "@db": ["./server/db/index.ts"],
             "@db/*": ["./server/db/*"],
+            "@websockets/documents": ["./server/websockets/documents"],
             "@mw": ["./server/middleware/index.ts"]
         },                                      
         "sourceMap": true,                      

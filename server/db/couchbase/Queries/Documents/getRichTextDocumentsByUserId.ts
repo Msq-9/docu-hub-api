@@ -24,7 +24,9 @@ const getRichTextDocumentsByUserId = async (
       [];
     const richTextDocumentList: Array<Record<string, string>> = [];
     queryResult.rows.forEach(async (row) =>
-      richTextDocumentListPromises.push(getByDocId(req, row.id))
+      richTextDocumentListPromises.push(
+        getByDocId(row.id, req?.couchbase?.bucket)
+      )
     );
     const results = await Promise.allSettled(richTextDocumentListPromises);
     results.forEach((result) => {
