@@ -31,7 +31,7 @@ export const searchUser = async (req: Request, res: Response) => {
 export const getUserbyId = async (req: Request, res: Response) => {
   try {
     const userDocId = `${couchbaseConfig.bucket}::user::${req.params.userId}`;
-    const userDoc = await getByDocId(req, userDocId);
+    const userDoc = await getByDocId(userDocId, req?.couchbase?.bucket);
 
     res.send(userDoc);
   } catch (err) {

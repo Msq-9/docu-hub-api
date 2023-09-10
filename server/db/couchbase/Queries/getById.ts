@@ -1,13 +1,12 @@
-import { GetResult } from 'couchbase';
-import { Request } from 'express';
+import { Bucket, GetResult } from 'couchbase';
 
 const getByDocId = async (
-  req: Request,
-  documentId: string
+  documentId: string,
+  bucket?: Bucket
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<Record<string, any>> => {
-  const cbDoc: GetResult | undefined = await req.couchbase?.bucket
-    .defaultCollection()
+  const cbDoc: GetResult | undefined = await bucket
+    ?.defaultCollection()
     .get(documentId);
 
   return cbDoc?.content;

@@ -68,7 +68,7 @@ export const createDoc = async (req: Request, res: Response) => {
 export const getDocbyId = async (req: Request, res: Response) => {
   try {
     const rtDocumentDocId = `${couchbaseConfig.bucket}::richTextDocument::${req.params.documentId}`;
-    const document = await getByDocId(req, rtDocumentDocId);
+    const document = await getByDocId(rtDocumentDocId, req?.couchbase?.bucket);
     const user = req.user as User;
     if (
       user &&
@@ -94,8 +94,8 @@ export const updateDoc = async (req: Request, res: Response) => {
   try {
     const rtDocumentDocId = `${couchbaseConfig.bucket}::richTextDocument::${req.params.documentId}`;
     const document = (await getByDocId(
-      req,
-      rtDocumentDocId
+      rtDocumentDocId,
+      req?.couchbase?.bucket
     )) as RichTextDocument;
     const user = req.user as User;
     if (
@@ -133,8 +133,8 @@ export const deleteRTDocument = async (req: Request, res: Response) => {
   try {
     const rtDocumentDocId = `${couchbaseConfig.bucket}::richTextDocument::${req.params.documentId}`;
     const document = (await getByDocId(
-      req,
-      rtDocumentDocId
+      rtDocumentDocId,
+      req?.couchbase?.bucket
     )) as RichTextDocument;
     const user = req.user as User;
 

@@ -5,7 +5,6 @@ import config from 'config';
 import getByDocId from '@db/couchbase/Queries/getById';
 import { Request } from 'express';
 import { CbConfig } from '@db/couchbase/connectCouchbase';
-import { User } from '@db/couchbase/Schemas/User';
 
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
@@ -27,7 +26,7 @@ const jwtStrategy = new JWTStrategy(
   ) => {
     const userDocId = `${couchbaseConfig.bucket}::user::${payload.id}`;
     try {
-      const user: User = await getByDocId(req, userDocId);
+      const user = await getByDocId(userDocId, req?.couchbase?.bucket);
       if (user) {
         return done(null, user);
       } else {

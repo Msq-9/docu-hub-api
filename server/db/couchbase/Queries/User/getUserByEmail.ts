@@ -16,7 +16,7 @@ const getUserByEmailQuery = async (
   });
 
   if (queryResult?.rows[0]) {
-    return await getByDocId(req, queryResult?.rows[0].id);
+    return await getByDocId(queryResult?.rows[0].id, req?.couchbase?.bucket);
   }
   return null;
 };

@@ -13,6 +13,9 @@ async function dbConnectionMW(req: Request, res: Response, next: NextFunction) {
     req.couchbase = { cluster, bucket };
   } catch (err) {
     console.log('Failed to connect to couchbase, error: ', err);
+    return res
+      .status(500)
+      .send({ message: 'Unable to establish DB connection' });
   }
   next();
 }

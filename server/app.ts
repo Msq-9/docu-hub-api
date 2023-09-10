@@ -1,5 +1,7 @@
 import express, { Express } from 'express';
+import { Server, Socket } from 'socket.io';
 import cors from 'cors';
+import http, { Server as HttpServer } from 'http';
 // Config
 import config from 'config';
 
@@ -7,10 +9,19 @@ import config from 'config';
 import { Users, Documents } from '@routes';
 import { LoginRouter, RegisterRouter } from '@auth';
 
+// Websockets
+import { documentsWebSocket } from '@websockets/documents';
+
 // Middlewares
-import { dbConnectionMW, isJwtAuthenticatedMW } from '@mw';
+import {
+  dbConnectionMW,
+  isJwtAuthenticatedMW,
+  isSocketAuthenticated
+} from '@mw';
 import { PassportAuth } from '@auth';
 import { User } from '@db/couchbase/Schemas/User';
+import { connectToCouchbase } from '@db';
+import { CbConfig } from '@db/couchbase/connectCouchbase';
 
 const allowedOrigins = config.get('allowedOrigins') as string[];
 
@@ -22,9 +33,43 @@ const corsOptions = {
 
 class DocuHubApiService {
   private app: Express;
+  private server: HttpServer;
 
   constructor() {
     this.app = express();
+    this.server = http.createServer(this.app);
+  }
+
+  async initSocketIO() {
+    // initialise socket io server
+    const io = new Server(this.server, {
+      cors: corsOptions,
+      path: '/websockets'
+    });
+
+    // DB Middleware
+    io.use(async (socket: Socket, next) => {
+      try {
+        const couchbaseConfig: CbConfig = config.get('couchbase');
+
+        const cluster = await connectToCouchbase();
+        const bucket = cluster.bucket(couchbaseConfig.bucket);
+
+        socket.couchbase = { cluster, bucket };
+        next();
+      } catch (err) {
+        console.log('Failed to connect to couchbase, error: ', err);
+        err instanceof Error
+          ? next(err)
+          : next(new Error('Unable to establish DB connection'));
+      }
+    });
+
+    // Auth middleware
+    io.use(isSocketAuthenticated);
+
+    // Documents websocket
+    documentsWebSocket(io);
   }
 
   async init() {
@@ -68,14 +113,17 @@ class DocuHubApiService {
     });
 
     // initialise api routes
-    this.app.use('/users', Users);
-    this.app.use('/documents', Documents);
+    this.app.use('/users', isJwtAuthenticatedMW, Users);
+    this.app.use('/documents', isJwtAuthenticatedMW, Documents);
+
+    // initialise socket io
+    this.initSocketIO();
   }
 
   start() {
     const port = config.get('port');
 
-    this.app.listen(port, () => {
+    this.server.listen(port, () => {
       console.log(`[server]: Server is running at http://localhost:${port}`);
     });
   }
