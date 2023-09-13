@@ -1,0 +1,14 @@
+{
+    "environment": "test",
+    "couchbase": {
+        "url": "localhost",
+        "user": "mockCBUser",
+        "password": "password",
+        "cluster":"docu_hub",
+        "bucket":"docuHub"
+    },
+    "jwtSecretKey": "someSecretUnkown",
+    "authTokenTTL": "1h",
+    "api_key": "api_key",
+    "allowedOrigins": ["http://localhost:3000"]
+}
