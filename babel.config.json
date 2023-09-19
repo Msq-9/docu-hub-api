@@ -1,0 +1,21 @@
+{
+  "presets": [
+    ["@babel/preset-env", { "targets": { "node": "current" } }],
+    "@babel/preset-typescript"
+  ],
+  "plugins": [
+    ["module-resolver",
+    {
+      "root": ["./"],
+      "extensions": [".ts"],
+      "alias": {
+        "@api": "./server/api/index.ts",
+        "@routes": "./server/routes/index.ts",
+        "@auth": "./server/auth/index.ts",
+        "@db": "./server/db",
+        "@websockets/documents": "./server/websockets/documents",
+        "@mw": "./server/middleware/index.ts"
+      }
+    }]
+  ]
+}
