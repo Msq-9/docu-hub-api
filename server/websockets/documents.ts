@@ -1,61 +1,49 @@
 import config from 'config';
 import getByDocId from '@db/couchbase/Queries/getById';
+import { cbCluster } from '@db/index';
 
 // Types
 import { CbConfig } from '@db/couchbase/connectCouchbase';
-import { Server, Socket } from 'socket.io';
 import { RichTextDocument } from '@db/couchbase/Schemas/RichTextDocument';
 import { User } from '@db/couchbase/Schemas/User';
+import { YSocketIO, Document } from 'y-socket.io/dist/server';
+import * as Y from 'yjs';
 
 const couchbaseConfig: CbConfig = config.get('couchbase');
 
-const updateDocument = (socket: Socket) => {
-  socket.on(
-    'updateDocument',
-    async (richTextDocument: Record<string, string>) => {
-      try {
-        const rtDocumentDocId = `${couchbaseConfig.bucket}::richTextDocument::${richTextDocument.id}`;
-        const document = (await getByDocId(
-          rtDocumentDocId,
-          socket?.couchbase?.bucket
-        )) as RichTextDocument;
-        const user = socket?.user as User;
-        if (
-          user &&
-          (user.id === document.createdBy ||
-            document.sharedTo.indexOf(user.id) >= 0)
-        ) {
-          const rtDocumentModel: RichTextDocument = {
-            ...document,
-            documentJSON: richTextDocument.documentJSON,
-            updatedAt: Date.now(),
-            updatedBy: user?.id
-          };
+export const documentsWebSocket = (ysocketio: YSocketIO) => {
+  ysocketio.on('document-update', async (doc: Document, update: Uint8Array) => {
+    try {
+      Y.applyUpdate(doc, update);
+      const docId = doc.name;
 
-          await socket?.couchbase?.bucket
-            ?.defaultCollection()
-            .upsert(rtDocumentDocId, rtDocumentModel);
-        }
-      } catch (err) {
-        if (err instanceof Error) {
-          socket.emit('documentError', { message: err.message });
-        }
-        socket.emit('documentError', { err });
+      const rtDocumentDocId = `${couchbaseConfig.bucket}::richTextDocument::${docId}`;
+      const cbBucket = (await cbCluster).bucket(couchbaseConfig.bucket);
+      const document = (await getByDocId(
+        rtDocumentDocId,
+        cbBucket
+      )) as RichTextDocument;
+
+      const user = doc.meta?.user as User;
+
+      const docMap = doc.getMap('data');
+
+      const rtDocumentModel: RichTextDocument = {
+        ...document,
+        documentJSON: docMap.get('data') as string,
+        updatedAt: Date.now(),
+        updatedBy: user?.id
+      };
+
+      await cbBucket
+        .defaultCollection()
+        .upsert(rtDocumentDocId, rtDocumentModel);
+      console.log(`The document ${doc.name} is updated`);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.log(err.message);
       }
+      console.log(err);
     }
-  );
-};
-
-export const documentsWebSocket = (io: Server) => {
-  io.on('connection', (socket) => {
-    console.log(`Socket ${socket.id} connected for user ${socket?.user?.id}`);
-
-    updateDocument(socket);
-
-    socket.on('disconnect', () => {
-      console.log(
-        `Socket ${socket.id} disconnected for user ${socket?.user?.id}`
-      );
-    });
   });
 };

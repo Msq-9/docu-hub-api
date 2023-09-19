@@ -2,6 +2,9 @@ import express, { Express } from 'express';
 import { Server, Socket } from 'socket.io';
 import cors from 'cors';
 import http, { Server as HttpServer } from 'http';
+import Jwt, { JwtPayload } from 'jsonwebtoken';
+import { cbCluster } from '@db/index';
+
 // Config
 import config from 'config';
 
@@ -11,6 +14,7 @@ import { LoginRouter, RegisterRouter } from '@auth';
 
 // Websockets
 import { documentsWebSocket } from '@websockets/documents';
+import { YSocketIO } from 'y-socket.io/dist/server';
 
 // Middlewares
 import {
@@ -22,6 +26,9 @@ import { PassportAuth } from '@auth';
 import { User } from '@db/couchbase/Schemas/User';
 import { connectToCouchbase } from '@db';
 import { CbConfig } from '@db/couchbase/connectCouchbase';
+import getByDocId from '@db/couchbase/Queries/getById';
+
+const couchbaseConfig: CbConfig = config.get('couchbase');
 
 const allowedOrigins = config.get('allowedOrigins') as string[];
 
@@ -43,8 +50,7 @@ class DocuHubApiService {
   async initSocketIO() {
     // initialise socket io server
     const io = new Server(this.server, {
-      cors: corsOptions,
-      path: '/websockets'
+      cors: corsOptions
     });
 
     // DB Middleware
@@ -68,8 +74,32 @@ class DocuHubApiService {
     // Auth middleware
     io.use(isSocketAuthenticated);
 
+    const ysocketio = new YSocketIO(io, {
+      authenticate: async (arg) => {
+        const authToken = arg.auth.token;
+        try {
+          const decodedToken = Jwt.verify(
+            authToken.split(' ')[1],
+            config.get('jwtSecretKey') as string
+          ) as JwtPayload;
+
+          const userId = decodedToken.id;
+          const userDocId = `${couchbaseConfig.bucket}::user::${userId}`;
+          const cbBucket = (await cbCluster).bucket(couchbaseConfig.bucket);
+          const user = (await getByDocId(userDocId, cbBucket)) as User;
+
+          return user ? true : false;
+        } catch (err) {
+          return false;
+        }
+      }
+    });
+
+    // Execute initialize method
+    ysocketio.initialize();
+
     // Documents websocket
-    documentsWebSocket(io);
+    documentsWebSocket(ysocketio);
   }
 
   async init() {
