@@ -3,6 +3,7 @@ import getByDocId from '@db/couchbase/Queries/getById';
 import { Request, Response } from 'express';
 import config from 'config';
 import { CbConfig } from '@db/couchbase/connectCouchbase';
+import getUsers from '@db/couchbase/Queries/User/getUsers';
 const couchbaseConfig: CbConfig = config.get('couchbase');
 
 export const searchUser = async (req: Request, res: Response) => {
@@ -34,6 +35,15 @@ export const getUserbyId = async (req: Request, res: Response) => {
     const userDoc = await getByDocId(userDocId, req?.couchbase?.bucket);
 
     return res.send(userDoc);
+  } catch (err) {
+    return res.status(500).send(err);
+  }
+};
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const listUsers = await getUsers(req);
+    return res.send(listUsers);
   } catch (err) {
     return res.status(500).send(err);
   }

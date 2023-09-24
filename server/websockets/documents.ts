@@ -18,7 +18,7 @@ export const documentsWebSocket = (ysocketio: YSocketIO) => {
       const docId = doc.name;
 
       const rtDocumentDocId = `${couchbaseConfig.bucket}::richTextDocument::${docId}`;
-      const cbBucket = (await cbCluster).bucket(couchbaseConfig.bucket);
+      const cbBucket = (await cbCluster)?.bucket(couchbaseConfig.bucket);
       const document = (await getByDocId(
         rtDocumentDocId,
         cbBucket
@@ -36,7 +36,7 @@ export const documentsWebSocket = (ysocketio: YSocketIO) => {
       };
 
       await cbBucket
-        .defaultCollection()
+        ?.defaultCollection()
         .upsert(rtDocumentDocId, rtDocumentModel);
       console.log(`The document ${doc.name} is updated`);
     } catch (err) {

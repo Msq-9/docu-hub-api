@@ -5,8 +5,8 @@ import { Bucket, Cluster } from 'couchbase';
 declare module 'express' {
   interface Request {
     couchbase?: {
-      cluster: Cluster;
-      bucket: Bucket;
+      cluster?: Cluster;
+      bucket?: Bucket;
     };
   }
 }
@@ -15,8 +15,8 @@ declare module 'express' {
 declare module 'socket.io' {
   interface Socket {
     couchbase?: {
-      cluster: Cluster;
-      bucket: Bucket;
+      cluster?: Cluster;
+      bucket?: Bucket;
     };
     user?: User;
   }

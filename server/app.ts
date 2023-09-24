@@ -59,10 +59,13 @@ class DocuHubApiService {
         const couchbaseConfig: CbConfig = config.get('couchbase');
 
         const cluster = await connectToCouchbase();
-        const bucket = cluster.bucket(couchbaseConfig.bucket);
-
-        socket.couchbase = { cluster, bucket };
-        next();
+        if (cluster) {
+          const bucket = cluster?.bucket(couchbaseConfig.bucket);
+          socket.couchbase = { cluster, bucket };
+          next();
+        } else {
+          next(new Error('Unable to establish DB connection'));
+        }
       } catch (err) {
         console.log('Failed to connect to couchbase, error: ', err);
         err instanceof Error
@@ -85,7 +88,7 @@ class DocuHubApiService {
 
           const userId = decodedToken.id;
           const userDocId = `${couchbaseConfig.bucket}::user::${userId}`;
-          const cbBucket = (await cbCluster).bucket(couchbaseConfig.bucket);
+          const cbBucket = (await cbCluster)?.bucket(couchbaseConfig.bucket);
           const user = (await getByDocId(userDocId, cbBucket)) as User;
 
           return user ? true : false;
@@ -151,7 +154,7 @@ class DocuHubApiService {
   }
 
   start() {
-    const port = config.get('port');
+    const port = process.env.PORT || config.get('port');
 
     this.server.listen(port, () => {
       console.log(`[server]: Server is running at http://localhost:${port}`);

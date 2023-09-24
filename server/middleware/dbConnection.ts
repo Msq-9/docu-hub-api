@@ -8,9 +8,15 @@ const couchbaseConfig: CbConfig = config.get('couchbase');
 async function dbConnectionMW(req: Request, res: Response, next: NextFunction) {
   try {
     const cluster = await connectToCouchbase();
-    const bucket = cluster.bucket(couchbaseConfig.bucket);
 
-    req.couchbase = { cluster, bucket };
+    if (cluster) {
+      const bucket = cluster.bucket(couchbaseConfig.bucket);
+      req.couchbase = { cluster, bucket };
+    } else {
+      return res
+        .status(500)
+        .send({ message: 'Unable to establish DB connection' });
+    }
   } catch (err) {
     console.log('Failed to connect to couchbase, error: ', err);
     return res
