@@ -2,9 +2,9 @@
     "environment": "prod",
     "port": 8000,
     "couchbase": {
-        "url": "couchbases://cb.mgd3wssvbr0xpxui.cloud.couchbase.com",
-        "user": "docuHubCBUser",
-        "password": "7VReB_QnagueS6",
+        "url": "",
+        "user": "",
+        "password": "",
         "cluster":"docu_hub",
         "bucket":"docuHub"
     },
