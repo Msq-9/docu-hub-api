@@ -12,7 +12,7 @@ const getRichTextDocumentsByUserId = async (
     and (createdBy = '${userId}' 
     or any createdBy in sharedTo satisfies createdBy = '${userId}' end)
 `;
-  const queryResult = await req.couchbase?.cluster.query(
+  const queryResult = await req.couchbase?.cluster?.query(
     getRichTextDocumentsByUserIdQuery,
     {
       parameters: { limit: 100 }

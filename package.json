@@ -5,8 +5,8 @@
     "main": "server/main.ts",
     "scripts": {
         "build": "npx tsc",
-        "start": "NODE_ENV=local node dist/main.js",
-        "dev": "concurrently \"npx tsc --watch\" \"nodemon NODE_ENV=local -q dist/main.js\"",
+        "start": "dist/main.js",
+        "dev": "concurrently \"npx tsc --watch\" \"nodemon NODE_ENV=dev -q dist/main.js\"",
         "lint": "eslint --ext .ts,.tsx,.json",
         "lint:fix": "eslint --fix .",
         "prettier": "prettier --config .prettierrc.json --write '*.{js,ts,json}' 'src/**/*.{js,ts,json}'"

@@ -5,7 +5,7 @@ const deleteById = async (
   documentId: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<void> => {
-  await req.couchbase?.bucket.defaultCollection().remove(documentId);
+  await req.couchbase?.bucket?.defaultCollection().remove(documentId);
 };
 
 export default deleteById;

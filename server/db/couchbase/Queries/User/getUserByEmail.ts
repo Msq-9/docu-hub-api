@@ -11,7 +11,7 @@ const getUserByEmailQuery = async (
     where split(meta().id, '::')[1] == 'user'
     and email == '${email}'
 `;
-  const queryResult = await req.couchbase?.cluster.query(getUserbyEmailQuery, {
+  const queryResult = await req.couchbase?.cluster?.query(getUserbyEmailQuery, {
     parameters: { limit: 1 }
   });
 
